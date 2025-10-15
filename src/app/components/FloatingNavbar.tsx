@@ -1,13 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const modalVariants = {
+  hidden: { opacity: 0, scale: 0.9, y: 20 },
+  visible: { opacity: 1, scale: 1, y: 0 },
+  exit: { opacity: 0, scale: 0.9, y: 20 },
+};
+
 export default function FloatingNavbar() {
   const [isExpanded, setIsExpanded] = useState(false);
   const pathname = usePathname();
+
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsExpanded(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Prevent scroll when expanded
+  useEffect(() => {
+    document.body.style.overflow = isExpanded ? 'hidden' : '';
+  }, [isExpanded]);
 
   const menuItems = [
     { name: 'Home', pattern: 'diagonal-lines', href: '/' },
@@ -20,10 +40,10 @@ export default function FloatingNavbar() {
     { name: 'Contact', href: '/contact' },
   ];
 
-  const getCurrentPageName = () => {
-    const currentItem = menuItems.find((item) => item.href === pathname);
-    return currentItem ? currentItem.name : 'Home';
-  };
+  const currentPage = useMemo(
+    () => menuItems.find((item) => item.href === pathname)?.name ?? 'Home',
+    [pathname]
+  );
 
   const getThumbnail = (pattern: string) => {
     const iconWrapper =
@@ -33,36 +53,21 @@ export default function FloatingNavbar() {
       'diagonal-lines': (
         <div className={iconWrapper}>
           <svg className={svgProps} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l9-9 9 9v9a1 1 0 01-1 1H4a1 1 0 01-1-1v-9z" />
           </svg>
         </div>
       ),
       'group-photo': (
         <div className={iconWrapper}>
           <svg className={svgProps} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM4 21a8 8 0 0116 0" />
           </svg>
         </div>
       ),
       work: (
         <div className={iconWrapper}>
           <svg className={svgProps} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 7h18M5 10h14v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8z" />
           </svg>
         </div>
       ),
@@ -77,15 +82,15 @@ export default function FloatingNavbar() {
         {isExpanded && (
           <motion.div
             key="expanded-navbar"
-            initial={{ opacity: 0, scaleY: 0 }}
-            animate={{ opacity: 1, scaleY: 1 }}
-            exit={{ opacity: 0, scaleY: 0 }}
-            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            style={{ originY: 1 }}
+            variants={modalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: 0.25, ease: 'easeOut' }}
             className="fixed bottom-6 md:bottom-8 left-1/2 z-40 -translate-x-1/2 bg-gradient-to-b from-black/95 to-neutral-950/95 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-[0_10px_60px_-10px_rgba(0,0,0,0.8)] w-[90vw] md:w-[500px] lg:w-[550px] overflow-hidden"
           >
             <div className="relative p-6 md:p-8 max-h-[80vh] overflow-y-auto">
-              {/* Ambient glow */}
+              {/* Ambient Glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-white/5 opacity-10 blur-2xl -z-10 animate-pulse" />
 
               {/* Header */}
@@ -105,32 +110,30 @@ export default function FloatingNavbar() {
               {/* Menu Items */}
               <div className="space-y-3 mb-6">
                 {menuItems.map((item, i) => (
-                  <div key={i} className="group">
-                    <Link href={item.href} onClick={() => setIsExpanded(false)}>
-                      <div className="flex items-center justify-between hover:opacity-80 transition-opacity">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
-                            {getThumbnail(item.pattern)}
-                          </div>
-                          <span
-                            className={`text-base md:text-lg font-light ${
-                              pathname === item.href ? 'text-gray-400' : 'text-white'
-                            }`}
-                          >
-                            {item.name}
-                          </span>
+                  <Link key={i} href={item.href} onClick={() => setIsExpanded(false)} className="group block">
+                    <div className="flex items-center justify-between hover:opacity-80 transition-opacity">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
+                          {getThumbnail(item.pattern)}
                         </div>
+                        <span
+                          className={`text-base md:text-lg font-light ${
+                            pathname === item.href ? 'text-gray-400' : 'text-white'
+                          }`}
+                        >
+                          {item.name}
+                        </span>
                       </div>
-                    </Link>
-                  </div>
+                    </div>
+                  </Link>
                 ))}
               </div>
 
               {/* Footer */}
               <div className="flex gap-4 pt-4 border-t border-white/10">
-                {socialLinks.map((link, index) => (
+                {socialLinks.map((link, i) => (
                   <a
-                    key={index}
+                    key={i}
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -165,7 +168,12 @@ export default function FloatingNavbar() {
           whileHover={{ scale: 1.02 }}
           className="bg-gradient-to-b from-neutral-950/90 to-black/90 backdrop-blur-xl rounded-full px-3 md:px-4 py-2 flex items-center justify-between shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)] border border-white/10 transition-colors w-[90vw] md:w-[500px] lg:w-[550px]"
         >
-          <button onClick={() => setIsExpanded(true)} className="hover:opacity-80 transition-opacity flex items-center">
+          <button
+            onClick={() => setIsExpanded(true)}
+            aria-expanded={isExpanded}
+            aria-controls="expanded-navbar"
+            className="hover:opacity-80 transition-opacity flex items-center"
+          >
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
@@ -173,7 +181,7 @@ export default function FloatingNavbar() {
 
           <div className="flex items-center gap-2">
             <div className="bg-white/95 text-black px-3 py-1 rounded-full text-xs font-medium">
-              {getCurrentPageName()}
+              {currentPage}
             </div>
             <button
               onClick={() => setIsExpanded(true)}
