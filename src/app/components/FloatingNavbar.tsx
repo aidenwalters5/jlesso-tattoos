@@ -148,7 +148,7 @@ export default function FloatingNavbar() {
             {/* Close Button */}
             <button
               onClick={() => setIsExpanded(false)}
-              className="absolute bottom-4 right-4 w-7 h-7 bg-white rounded-full flex items-center justify-center hover:bg-gray-200 transition-all hover:scale-110"
+              className="absolute bottom-[8px] right-3 md:right-4 w-7 h-7 bg-white rounded-full flex items-center justify-center hover:bg-gray-200 transition-all hover:scale-110"
             >
               <svg className="w-3 h-3" fill="none" stroke="black" viewBox="0 0 24 24" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
