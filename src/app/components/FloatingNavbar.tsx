@@ -31,8 +31,7 @@ export default function FloatingNavbar() {
 
   const menuItems = [
     { name: 'Home', pattern: 'diagonal-lines', href: '/' },
-    { name: 'About', pattern: 'group-photo', href: '/about' },
-    { name: 'Portfolio', pattern: 'work', href: '/projects' },
+    { name: 'Gallery', pattern: 'work', href: '/gallery' },
   ];
 
   const socialLinks = [
@@ -166,32 +165,40 @@ export default function FloatingNavbar() {
       >
         <motion.div
           whileHover={{ scale: 1.02 }}
-          className="bg-gradient-to-b from-neutral-950/90 to-black/90 backdrop-blur-xl rounded-full px-3 md:px-4 py-2 flex items-center justify-between shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)] border border-white/10 transition-colors w-[90vw] md:w-[500px] lg:w-[550px]"
+          className="bg-gradient-to-b from-neutral-950/90 to-black/90 backdrop-blur-xl rounded-full px-3 md:px-4 py-2 flex items-center justify-center shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)] border border-white/10 transition-colors w-[90vw] md:w-[500px] lg:w-[550px] relative"
         >
           <button
             onClick={() => setIsExpanded(true)}
             aria-expanded={isExpanded}
             aria-controls="expanded-navbar"
-            className="hover:opacity-80 transition-opacity flex items-center"
+            className="hover:opacity-80 transition-opacity flex items-center absolute left-3 md:left-4"
           >
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
 
-          <div className="flex items-center gap-2">
-            <div className="bg-white/95 text-black px-3 py-1 rounded-full text-xs font-medium">
-              {currentPage}
-            </div>
-            <button
-              onClick={() => setIsExpanded(true)}
-              className="w-7 h-7 bg-white rounded-full flex items-center justify-center transition-all hover:scale-110 hover:brightness-90"
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentPage}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              className="bg-white/10 backdrop-blur-xl border border-white/20 text-white px-4 py-1 rounded-full text-sm tracking-wide shadow-[inset_0_0_10px_rgba(255,255,255,0.15)]"
             >
-              <svg className="w-3 h-3" fill="none" stroke="black" viewBox="0 0 24 24" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-          </div>
+              {currentPage}
+            </motion.div>
+          </AnimatePresence>
+
+          <button
+            onClick={() => setIsExpanded(true)}
+            className="w-7 h-7 bg-white rounded-full flex items-center justify-center transition-all hover:scale-110 hover:brightness-90 absolute right-3 md:right-4"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="black" viewBox="0 0 24 24" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
         </motion.div>
       </div>
     </>
